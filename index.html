@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Problema do Cálculo Econômico</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #C0392B; --red-dark: #7B241C; --gold: #D4AF37; --gold-light: #F0D060;
+    --cream: #F5F0E8; --ink: #1A1208; --paper: #EDE8DC; --shadow: #2C1810; --gray: #8B7355;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'EB Garamond', Georgia, serif; background: var(--ink); color: var(--cream); min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 4rem 2rem; position: relative; background: radial-gradient(ellipse at 30% 20%, #3D0A00 0%, var(--ink) 60%); border-bottom: 1px solid #3A2A1A; }
+  .hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .year-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase; margin-bottom: 2rem; opacity: 0.8; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 7vw, 5.5rem); font-weight: 900; line-height: 1.05; max-width: 900px; color: var(--cream); margin-bottom: 1rem; }
+  .hero h1 em { color: var(--gold); font-style: italic; }
+  .hero-subtitle { font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--gray); max-width: 600px; line-height: 1.6; margin-bottom: 3rem; font-style: italic; }
+  .scroll-hint { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gray); text-transform: uppercase; animation: bounce 2s infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(6px); opacity: 1; } }
+  section { max-width: 900px; margin: 0 auto; padding: 5rem 2rem; border-bottom: 1px solid #2A1E10; }
+  .section-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.4em; color: var(--gold); text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: #3A2A1A; }
+  h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; color: var(--cream); line-height: 1.2; margin-bottom: 1.5rem; }
+  h2 em { color: var(--gold); font-style: italic; }
+  p { font-size: 1.1rem; line-height: 1.8; color: #C8BCA8; margin-bottom: 1.2rem; }
+  strong { color: var(--cream); font-weight: 500; }
+  .quote-block { border-left: 3px solid var(--gold); margin: 2.5rem 0; padding: 1.5rem 2rem; background: rgba(212, 175, 55, 0.05); position: relative; }
+  .quote-block::before { content: '"'; font-family: 'Playfair Display', serif; font-size: 5rem; color: var(--gold); opacity: 0.3; position: absolute; top: -1rem; left: 1rem; line-height: 1; }
+  .quote-block p { font-style: italic; font-size: 1.2rem; color: var(--cream); margin: 0; }
+  .quote-author { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--gold); margin-top: 1rem; letter-spacing: 0.1em; }
+  .simulator { background: linear-gradient(135deg, #1A0F05 0%, #0D0800 100%); border: 1px solid #3A2A1A; border-radius: 2px; padding: 3rem; margin: 3rem 0; position: relative; overflow: hidden; }
+  .simulator::before { content: 'SIMULADOR'; position: absolute; top: 1rem; right: 1.5rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--red); opacity: 0.6; }
+  .sim-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); margin-bottom: 0.5rem; }
+  .sim-desc { font-size: 0.95rem; color: var(--gray); margin-bottom: 2rem; font-style: italic; }
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+  @media (max-width: 600px) { .sim-grid { grid-template-columns: 1fr; } .simulator { padding: 2rem 1.5rem; } }
+  .sim-field label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .sim-field input, .sim-field select { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid #3A2A1A; border-radius: 2px; color: var(--cream); font-family: 'IBM Plex Mono', monospace; font-size: 1rem; padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  .sim-field input:focus, .sim-field select:focus { border-color: var(--gold); background: rgba(212,175,55,0.05); }
+  .sim-field select option { background: #1A0F05; }
+  .btn-calcular { width: 100%; background: var(--red); border: none; color: var(--cream); font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 1rem 2rem; cursor: pointer; transition: background 0.2s, transform 0.1s; border-radius: 2px; }
+  .btn-calcular:hover { background: var(--red-dark); }
+  .btn-calcular:active { transform: scale(0.99); }
+  .resultado { display: none; margin-top: 2rem; border-top: 1px solid #3A2A1A; padding-top: 2rem; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .resultado.visible { display: block; }
+  .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .res-grid { grid-template-columns: 1fr; } }
+  .res-card { background: rgba(255,255,255,0.03); border: 1px solid #2A1E10; padding: 1.2rem; text-align: center; }
+  .res-card .val { font-family: 'IBM Plex Mono', monospace; font-size: 1.4rem; font-weight: 500; display: block; margin-bottom: 0.4rem; }
+  .res-card .val.good { color: var(--gold); }
+  .res-card .val.bad { color: var(--red); }
+  .res-card .val.neutral { color: #7BA7BC; }
+  .res-card small { font-size: 0.75rem; color: var(--gray); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+  .res-veredicto { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); border-left: 3px solid var(--red); padding: 1.2rem 1.5rem; font-style: italic; color: var(--cream); font-size: 1rem; line-height: 1.6; }
+  .debate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #3A2A1A; margin: 2rem 0; }
+  @media (max-width: 600px) { .debate-grid { grid-template-columns: 1fr; } }
+  .debate-card { padding: 2rem; cursor: pointer; transition: background 0.2s; position: relative; }
+  .debate-card.mises { background: #0D0800; }
+  .debate-card.lange { background: #080D00; }
+  .debate-card:hover { background: rgba(212,175,55,0.05); }
+  .debate-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.3rem; }
+  .debate-card.mises h3 { color: var(--gold); }
+  .debate-card.lange h3 { color: #7BA7BC; }
+  .debate-card .side-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.3em; margin-bottom: 1rem; opacity: 0.6; text-transform: uppercase; }
+  .debate-card.mises .side-label { color: var(--gold); }
+  .debate-card.lange .side-label { color: #7BA7BC; }
+  .debate-card p { font-size: 0.95rem; color: #B0A090; line-height: 1.65; margin: 0; }
+  .expand-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--gray); margin-top: 1rem; display: inline-block; letter-spacing: 0.1em; }
+  .extra-content { display: none; margin-top: 1rem; }
+  .extra-content.open { display: block; }
+  .extra-content p { color: #9A8A7A; font-size: 0.9rem; }
+  .timeline { position: relative; padding-left: 2rem; margin: 2rem 0; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0.5rem; bottom: 0.5rem; width: 1px; background: linear-gradient(to bottom, var(--gold), #3A2A1A); }
+  .tl-item { position: relative; margin-bottom: 2.5rem; padding-left: 1.5rem; }
+  .tl-item::before { content: ''; position: absolute; left: -2rem; top: 0.5rem; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.4); }
+  .tl-year { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--gold); letter-spacing: 0.1em; margin-bottom: 0.3rem; }
+  .tl-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--cream); margin-bottom: 0.4rem; }
+  .tl-text { font-size: 0.95rem; color: var(--gray); line-height: 1.6; margin: 0; }
+  .quiz-container { background: #0D0800; border: 1px solid #3A2A1A; padding: 2.5rem; margin: 2rem 0; border-radius: 2px; }
+  .quiz-q { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--cream); margin-bottom: 1.5rem; line-height: 1.4; display: none; }
+  .quiz-q.active { display: block; animation: fadeIn 0.3s; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.75rem; }
+  .quiz-opt { background: rgba(255,255,255,0.03); border: 1px solid #2A1E10; color: #C8BCA8; font-family: 'EB Garamond', serif; font-size: 1rem; padding: 0.9rem 1.2rem; cursor: pointer; text-align: left; border-radius: 2px; transition: all 0.2s; }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--gold); color: var(--cream); background: rgba(212,175,55,0.05); }
+  .quiz-opt.correct { border-color: var(--gold); background: rgba(212,175,55,0.1); color: var(--gold); }
+  .quiz-opt.wrong { border-color: var(--red); background: rgba(192,57,43,0.1); color: var(--red); }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; font-style: italic; font-size: 1rem; color: var(--gray); display: none; line-height: 1.6; }
+  .quiz-next { margin-top: 1.2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--gold); background: none; border: 1px solid var(--gold); padding: 0.6rem 1.2rem; cursor: pointer; display: none; text-transform: uppercase; transition: background 0.2s; }
+  .quiz-next:hover { background: rgba(212,175,55,0.1); }
+  .quiz-score { text-align: center; display: none; animation: fadeIn 0.4s; }
+  .quiz-score .score-num { font-family: 'Playfair Display', serif; font-size: 4rem; color: var(--gold); display: block; }
+  .quiz-score p { margin-top: 0.5rem; }
+  .quiz-progress { display: flex; gap: 0.3rem; margin-bottom: 1.5rem; }
+  .q-dot { flex: 1; height: 3px; background: #2A1E10; border-radius: 2px; transition: background 0.3s; }
+  .q-dot.done { background: var(--gold); }
+  .q-dot.current { background: var(--red); }
+  footer { text-align: center; padding: 4rem 2rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #4A3A2A; letter-spacing: 0.15em; text-transform: uppercase; }
+  footer span { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="year-badge">Ludwig von Mises · 1920</div>
+  <h1>O Problema do<br><em>Cálculo Econômico</em><br>no Socialismo</h1>
+  <p class="hero-subtitle">Por que uma economia planificada não pode alocar recursos racionalmente — e o que isso significa hoje</p>
+  <div class="scroll-hint">↓ &nbsp; role para explorar</div>
+</div>
+
+<section>
+  <div class="section-label">I — O argumento central</div>
+  <h2>O que <em>Mises</em> disse em 1920?</h2>
+  <p>Em seu artigo seminal <strong>"Die Wirtschaftsrechnung im sozialistischen Gemeinwesen"</strong>, Ludwig von Mises lançou um desafio que ainda ecoa: numa economia em que o Estado é proprietário dos meios de produção, <strong>é matematicamente impossível fazer cálculo econômico racional</strong>.</p>
+  <div class="quote-block">
+    <p>Sem mercado para os bens de capital, não pode haver preços para eles. Sem preços, não há como calcular lucros e perdas. Sem isso, é impossível saber se os recursos estão sendo usados de forma eficiente.</p>
+    <div class="quote-author">— Ludwig von Mises, 1920 (paráfrase)</div>
+  </div>
+  <p>O argumento não é que os planejadores são <em>estúpidos</em> ou <em>mal-intencionados</em>. É estrutural: o <strong>sistema de preços de mercado</strong> é um mecanismo de processamento e transmissão de informação dispersa — informação que nenhuma autoridade central pode reunir, porque ela está fragmentada em milhões de mentes, circunstâncias locais e preferências individuais que mudam a cada momento.</p>
+  <p>Sem esse termômetro, o planejador central pode produzir aço para fazer alfinetes quando deveria fazer trilhos de trem — e não saberá que errou até que o dano esteja feito.</p>
+</section>
+
+<section>
+  <div class="section-label">II — Simulador interativo</div>
+  <h2>Simule o <em>fracasso</em> do planejamento</h2>
+  <p>Compare como uma economia planificada versus uma economia de mercado alocaria recursos em diferentes cenários.</p>
+
+  <div class="simulator">
+    <div class="sim-title">Simulador de Alocação de Recursos</div>
+    <div class="sim-desc">Configure o cenário e veja o que acontece com a eficiência alocativa.</div>
+    <div class="sim-grid">
+      <div class="sim-field">
+        <label>Número de bens na economia</label>
+        <input type="number" id="numBens" value="1000" min="10" max="1000000" step="10">
+      </div>
+      <div class="sim-field">
+        <label>Fatores de produção</label>
+        <input type="number" id="numFatores" value="50" min="5" max="10000" step="5">
+      </div>
+      <div class="sim-field">
+        <label>Velocidade de mudança das preferências</label>
+        <select id="velocidade">
+          <option value="lenta">Lenta (economia rural simples)</option>
+          <option value="media" selected>Média (economia industrial)</option>
+          <option value="rapida">Rápida (economia moderna digitalizada)</option>
+        </select>
+      </div>
+      <div class="sim-field">
+        <label>Regime econômico simulado</label>
+        <select id="regime">
+          <option value="planificado">Socialismo planificado</option>
+          <option value="mercado">Economia de mercado</option>
+          <option value="misto">Economia mista</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-calcular" onclick="calcular()">→ &nbsp; Calcular eficiência alocativa</button>
+    <div class="resultado" id="resultado">
+      <div class="res-grid">
+        <div class="res-card">
+          <span class="val" id="res-equacoes">—</span>
+          <small>Equações simultâneas necessárias</small>
+        </div>
+        <div class="res-card">
+          <span class="val" id="res-tempo">—</span>
+          <small>Tempo de processamento estimado</small>
+        </div>
+        <div class="res-card">
+          <span class="val" id="res-efic">—</span>
+          <small>Eficiência alocativa relativa</small>
+        </div>
+      </div>
+      <div class="res-veredicto" id="res-texto"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">III — O grande debate</div>
+  <h2>Mises vs. <em>Lange</em>: a resposta socialista</h2>
+  <p>O argumento de Mises provocou um dos debates mais ricos do século XX. Os economistas socialistas responderam — e a réplica deles foi sofisticada. Clique para expandir cada posição.</p>
+  <div class="debate-grid">
+    <div class="debate-card mises" onclick="toggleExtra('extra-mises', this)">
+      <div class="side-label">Posição 1 — Escola Austríaca</div>
+      <h3>Mises & Hayek</h3>
+      <p>Os preços de mercado são o único mecanismo capaz de agregar e transmitir o conhecimento disperso de milhões de agentes. Nenhum computador ou burocrata pode substituir isso.</p>
+      <div class="extra-content" id="extra-mises">
+        <p style="margin-top:1rem">Hayek aprofundou o argumento em 1945: o problema não é apenas de quantidade de informação, mas de tipo. Grande parte do conhecimento relevante é tácito, local, não-articulável. O sistema de preços codifica esse conhecimento em sinais simples que qualquer agente pode interpretar sem precisar entender sua origem.</p>
+      </div>
+      <span class="expand-btn">+ expandir</span>
+    </div>
+    <div class="debate-card lange" onclick="toggleExtra('extra-lange', this)">
+      <div class="side-label">Posição 2 — Socialismo de mercado</div>
+      <h3>Oskar Lange</h3>
+      <p>Lange propôs que uma agência central poderia simular preços de equilíbrio por tentativa e erro, ajustando até zerar excesso de oferta/demanda. Mises estaria errado.</p>
+      <div class="extra-content" id="extra-lange">
+        <p style="margin-top:1rem">A resposta de Hayek foi contundente: Lange ignorou o problema da descoberta. Mercados não apenas equilibram oferta e demanda — eles geram incentivos para encontrar oportunidades ainda não conhecidas. Um planejador central não tem como "simular" o empreendedorismo. E mesmo que pudesse resolver as equações, o mundo muda antes que a solução chegue.</p>
+      </div>
+      <span class="expand-btn">+ expandir</span>
+    </div>
+  </div>
+  <p>A virada final do debate veio com o colapso da URSS. Os economistas computacionais do bloco soviético tentaram implementar o modelo de Lange com computadores — e falharam. A complexidade crescia exponencialmente com cada bem adicionado à economia.</p>
+</section>
+
+<section>
+  <div class="section-label">IV — Cronologia do debate</div>
+  <h2>Cem anos de uma <em>controvérsia viva</em></h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-year">1920</div>
+      <div class="tl-title">Mises publica o artigo original</div>
+      <p class="tl-text">O cálculo econômico é impossível sem propriedade privada dos meios de produção — a pedra fundamental do debate.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">1936–1937</div>
+      <div class="tl-title">Resposta de Oskar Lange</div>
+      <p class="tl-text">Lange publica "On the Economic Theory of Socialism", propondo o socialismo de mercado com preços paramétricos geridos por uma Junta Central de Planejamento.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">1945</div>
+      <div class="tl-title">Hayek: "O Uso do Conhecimento na Sociedade"</div>
+      <p class="tl-text">Artigo seminal que reformula o problema: não é sobre quantidade de informação, mas sobre conhecimento tácito e disperso que o sistema de preços agrega automaticamente.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">1960–1980</div>
+      <div class="tl-title">Cibernética soviética e o OGAS</div>
+      <p class="tl-text">A URSS tenta implementar uma rede computacional de planejamento econômico. O projeto fracassa por complexidade computacional e resistência burocrática.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">1991</div>
+      <div class="tl-title">Colapso da União Soviética</div>
+      <p class="tl-text">O experimento histórico mais amplo de planejamento centralizado termina. Décadas de má alocação crônica de recursos tornam-se visíveis.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2010s–hoje</div>
+      <div class="tl-title">IA e o ressurgimento do debate</div>
+      <p class="tl-text">Alguns autores argumentam que IA e big data poderiam viabilizar o planejamento racional. Críticos respondem: o problema de Hayek sobre conhecimento tácito não desaparece com mais poder computacional.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label">V — Teste seu entendimento</div>
+  <h2>Quiz: você entendeu o <em>debate</em>?</h2>
+  <p>Quatro questões para fixar os conceitos centrais do problema do cálculo econômico.</p>
+  <div class="quiz-container">
+    <div class="quiz-progress" id="quiz-progress"></div>
+    <div id="quiz-area"></div>
+  </div>
+</section>
+
+<footer>
+  Baseado em Mises (1920), Hayek (1945), Lange (1936) &nbsp;·&nbsp; <span>O debate continua</span>
+</footer>
+
+<script>
+function calcular() {
+  const bens = parseInt(document.getElementById('numBens').value) || 1000;
+  const fatores = parseInt(document.getElementById('numFatores').value) || 50;
+  const vel = document.getElementById('velocidade').value;
+  const regime = document.getElementById('regime').value;
+  const equacoes = bens * fatores;
+  const fatorVel = { lenta: 1, media: 10, rapida: 100 }[vel];
+  let eficBase;
+  if (regime === 'planificado') {
+    eficBase = Math.max(5, 100 - Math.log10(equacoes) * 15);
+  } else if (regime === 'mercado') {
+    eficBase = Math.min(95, 70 + Math.random() * 20);
+  } else {
+    eficBase = Math.min(80, 55 + Math.random() * 20);
+  }
+  const efic = Math.round(eficBase);
+  let tempoStr;
+  if (regime === 'mercado') {
+    tempoStr = 'instantâneo';
+  } else {
+    const ops = equacoes * fatorVel * 1e6;
+    const anos = ops / (3.15e7 * 1e12);
+    if (anos > 1e9) tempoStr = '>' + anos.toExponential(1).replace('e+', 'e') + ' anos';
+    else if (anos > 1e6) tempoStr = '>' + (anos/1e6).toFixed(1) + ' mi anos';
+    else if (anos > 1000) tempoStr = '>' + Math.round(anos/1000) + ' mil anos';
+    else if (anos > 1) tempoStr = '~' + Math.round(anos) + ' anos';
+    else tempoStr = 'meses';
+  }
+  const resEq = document.getElementById('res-equacoes');
+  resEq.textContent = equacoes.toLocaleString('pt-BR');
+  resEq.className = 'val ' + (equacoes > 100000 ? 'bad' : equacoes > 10000 ? 'neutral' : 'good');
+  const resTempo = document.getElementById('res-tempo');
+  resTempo.textContent = tempoStr;
+  resTempo.className = 'val ' + (regime === 'mercado' ? 'good' : 'bad');
+  const resEfic = document.getElementById('res-efic');
+  resEfic.textContent = efic + '%';
+  resEfic.className = 'val ' + (efic >= 75 ? 'good' : efic >= 50 ? 'neutral' : 'bad');
+  const textos = {
+    planificado: 'Com ' + bens.toLocaleString('pt-BR') + ' bens e ' + fatores + ' fatores de produção, o sistema de equações simultâneas necessário para o planejamento ótimo torna-se computacionalmente insolúvel em tempo útil — e o mundo muda antes que qualquer solução chegue. Este é exatamente o argumento de Mises e Hayek: não é questão de tecnologia, é estrutural.',
+    mercado: 'Numa economia de mercado, os preços emergem descentralizadamente através de milhões de transações voluntárias. Cada ajuste de preço transmite informação relevante sem que nenhum agente precise conhecer o todo. O sistema "resolve" implicitamente o problema de otimização que explicitamente seria insolúvel.',
+    misto: 'Economias mistas preservam parcialmente o mecanismo de preços para bens privados, enquanto usam planejamento para bens públicos e externalidades. O desafio é delimitar onde cada lógica se aplica — e evitar que a lógica política corroa a lógica econômica nos setores que deveriam funcionar como mercado.'
+  };
+  document.getElementById('res-texto').textContent = textos[regime];
+  const res = document.getElementById('resultado');
+  res.classList.add('visible');
+}
+
+function toggleExtra(id, card) {
+  const extra = document.getElementById(id);
+  const btn = card.querySelector('.expand-btn');
+  extra.classList.toggle('open');
+  btn.textContent = extra.classList.contains('open') ? '− recolher' : '+ expandir';
+}
+
+const questions = [
+  { q: 'Qual é o núcleo do argumento de Mises sobre o cálculo econômico?', opts: ['Os planejadores são corruptos e incompetentes', 'Sem preços de mercado para os meios de produção, é impossível saber se os recursos estão sendo usados racionalmente', 'O problema é apenas tecnológico e será resolvido por computadores suficientemente potentes', 'Economias planificadas crescem mais devagar porque inibem o comércio exterior'], correct: 1, feedback: 'Correto. O argumento não é sobre motivação ou tecnologia, mas sobre a impossibilidade estrutural de calcular sem os sinais de preços que só emergem de trocas voluntárias em mercados para bens de capital.' },
+  { q: 'O que Hayek acrescentou ao argumento de Mises em 1945?', opts: ['Que o planejamento é possível com computadores suficientemente rápidos', 'Que o problema fundamental é o conhecimento tácito e disperso que o sistema de preços agrega, mas que não pode ser centralizado', 'Que a URSS era um caso de planejamento bem-sucedido até 1980', 'Que mercados falham em bens públicos e externalidades'], correct: 1, feedback: 'Exato. Hayek distinguiu entre conhecimento científico (articulável, centralizável) e conhecimento da circunstância particular de tempo e lugar (tácito, disperso). Os preços agregam o segundo tipo sem que ninguém precise possuí-lo explicitamente.' },
+  { q: 'Qual foi a resposta de Oskar Lange ao desafio de Mises?', opts: ['Que mercados são sempre superiores ao planejamento', 'Que uma Junta Central de Planejamento poderia simular preços de equilíbrio por tentativa e erro iterativo', 'Que a propriedade coletiva é incompatível com qualquer forma de cálculo', 'Que a democracia resolve automaticamente o problema de alocação de recursos'], correct: 1, feedback: 'Correto. Lange propôs o "socialismo de mercado": a Junta ajustaria preços artificialmente até que oferta e demanda se equilibrassem. Hayek replicou que isso ignora o papel dinâmico do empreendedorismo e da descoberta de oportunidades.' },
+  { q: 'Por que muitos economistas consideram que o colapso soviético foi evidência empírica relevante para o debate?', opts: ['Porque a URSS nunca tentou aplicar planejamento central de verdade', 'Porque a URSS tentou implementar planejamento computacional (OGAS) e fracassou por complexidade, além de acumular décadas de má alocação crônica visíveis no colapso', 'Porque a URSS foi derrotada militarmente pelos EUA', 'Porque o socialismo soviético era religioso, não econômico'], correct: 1, feedback: 'Preciso. O OGAS — projeto soviético de rede computacional de planejamento econômico — falhou antes mesmo do colapso político. E as distorções acumuladas (filas, escassez crônica, qualidade degradada) foram sintomas diretos da impossibilidade de cálculo racional sem sistema de preços.' }
+];
+let current = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  const area = document.getElementById('quiz-area');
+  const prog = document.getElementById('quiz-progress');
+  prog.innerHTML = questions.map((_, i) => '<div class="q-dot ' + (i < current ? 'done' : i === current ? 'current' : '') + '"></div>').join('');
+  if (current >= questions.length) {
+    area.innerHTML = '<div class="quiz-score" style="display:block"><span class="score-num">' + score + '/' + questions.length + '</span><p>' + (score === questions.length ? 'Perfeito! Você está pronto para impressionar o Jones Manoel.' : score >= 3 ? 'Muito bem — você entendeu o núcleo do debate.' : 'Vale reler as seções acima e tentar novamente.') + '</p></div>';
+    return;
+  }
+  const q = questions[current];
+  answered = false;
+  area.innerHTML = '<div class="quiz-q active">' + q.q + '</div><div class="quiz-options">' + q.opts.map((o, i) => '<button class="quiz-opt" onclick="answer(' + i + ')">' + o + '</button>').join('') + '</div><div class="quiz-feedback" id="qfeedback">' + q.feedback + '</div><button class="quiz-next" id="qnext" onclick="nextQ()">' + (current < questions.length - 1 ? '→ Próxima questão' : '→ Ver resultado') + '</button>';
+}
+
+function answer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+  opts[idx].classList.add(idx === q.correct ? 'correct' : 'wrong');
+  if (idx !== q.correct) opts[q.correct].classList.add('correct');
+  if (idx === q.correct) score++;
+  document.getElementById('qfeedback').style.display = 'block';
+  document.getElementById('qnext').style.display = 'inline-block';
+}
+
+function nextQ() { current++; renderQuiz(); }
+renderQuiz();
+</script>
+
+</body>
+</html>
